@@ -1,0 +1,175 @@
+{
+  "name": "HeatRescue AI - Heat Risk Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "heatrescue-agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "User Request (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1200,
+        300
+      ],
+      "webhookId": "heatrescue-agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// STEP 1 - PARSE INTENT\n// Lightweight keyword-based intent parser.\n// Swap this for an LLM node (OpenAI/Claude) later for true NL understanding -\n// keep this rule-based version as a reliable fallback for the demo.\n\nconst body = $input.first().json.body || $input.first().json;\nconst query = (body.query || 'find the highest heat-risk zones').toLowerCase();\nconst city = body.city || 'Phoenix, AZ';\n\nlet intent = 'investigate';\nif (query.includes('compare')) intent = 'compare';\nelse if (query.includes('monitor') || query.includes('alert')) intent = 'monitor';\nelse if (query.includes('why') || query.includes('explain')) intent = 'explain';\nelse if (query.includes('plan') || query.includes('recommend') || query.includes('should')) intent = 'plan';\n\nreturn [{\n  json: {\n    original_query: query,\n    city,\n    intent,\n    agent_activity: ['Parsed user objective', `Detected intent: ${intent}`, `Target city: ${city}`]\n  }\n}];"
+      },
+      "id": "parse-intent",
+      "name": "1. Parse Intent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// STEP 2 - FETCH HEAT DATA\n// MOCK MODE: embedded dataset mirrors the FortyGuard response shape\n// (temperature, time_of_measure, exceedance, persistence, environmental).\n//\n// TO GO LIVE: replace this Code node with an HTTP Request node chain:\n//   POST /v1/heatmap  ->  activity_id\n//   GET  /v1/status/{activity_id}  (poll until status === 'completed')\n//   use header 'api-key: {{FORTYGUARD_API_KEY}}'\n// then map the returned map_data/stats_data into the same zone shape below\n// so every downstream node keeps working unchanged.\n\nconst prev = $input.first().json;\n\nconst zones = [\n  {\n    \"zone_id\": \"PHX-01\",\n    \"name\": \"Downtown Warehouse District\",\n    \"lat\": 33.4484,\n    \"lng\": -112.074,\n    \"temperature_c\": 44.8,\n    \"time_of_measure\": \"15:00\",\n    \"exceedance_hours\": 4.9,\n    \"persistence_hours\": 4.2,\n    \"environmental\": {\n      \"heat_index_c\": 48.9,\n      \"humidity_pct\": 18,\n      \"aqi\": 92,\n      \"solar_irradiance_wm2\": 910\n    }\n  },\n  {\n    \"zone_id\": \"PHX-02\",\n    \"name\": \"South Mountain Logistics Hub\",\n    \"lat\": 33.356,\n    \"lng\": -112.062,\n    \"temperature_c\": 46.1,\n    \"time_of_measure\": \"15:30\",\n    \"exceedance_hours\": 5.4,\n    \"persistence_hours\": 4.8,\n    \"environmental\": {\n      \"heat_index_c\": 50.7,\n      \"humidity_pct\": 15,\n      \"aqi\": 101,\n      \"solar_irradiance_wm2\": 950\n    }\n  },\n  {\n    \"zone_id\": \"PHX-03\",\n    \"name\": \"Sky Harbor Cargo Zone\",\n    \"lat\": 33.4342,\n    \"lng\": -112.0116,\n    \"temperature_c\": 43.2,\n    \"time_of_measure\": \"14:30\",\n    \"exceedance_hours\": 3.8,\n    \"persistence_hours\": 3.1,\n    \"environmental\": {\n      \"heat_index_c\": 46.5,\n      \"humidity_pct\": 20,\n      \"aqi\": 88,\n      \"solar_irradiance_wm2\": 860\n    }\n  },\n  {\n    \"zone_id\": \"PHX-04\",\n    \"name\": \"West Van Buren Construction Site\",\n    \"lat\": 33.4485,\n    \"lng\": -112.12,\n    \"temperature_c\": 45.3,\n    \"time_of_measure\": \"15:00\",\n    \"exceedance_hours\": 5.0,\n    \"persistence_hours\": 4.5,\n    \"environmental\": {\n      \"heat_index_c\": 49.4,\n      \"humidity_pct\": 16,\n      \"aqi\": 96,\n      \"solar_irradiance_wm2\": 930\n    }\n  },\n  {\n    \"zone_id\": \"PHX-05\",\n    \"name\": \"Tempe Delivery Corridor\",\n    \"lat\": 33.4255,\n    \"lng\": -111.94,\n    \"temperature_c\": 41.7,\n    \"time_of_measure\": \"14:00\",\n    \"exceedance_hours\": 2.6,\n    \"persistence_hours\": 2.0,\n    \"environmental\": {\n      \"heat_index_c\": 44.1,\n      \"humidity_pct\": 22,\n      \"aqi\": 74,\n      \"solar_irradiance_wm2\": 790\n    }\n  },\n  {\n    \"zone_id\": \"PHX-06\",\n    \"name\": \"Glendale Outdoor Retail Park\",\n    \"lat\": 33.5387,\n    \"lng\": -112.186,\n    \"temperature_c\": 42.9,\n    \"time_of_measure\": \"14:30\",\n    \"exceedance_hours\": 3.3,\n    \"persistence_hours\": 2.7,\n    \"environmental\": {\n      \"heat_index_c\": 45.8,\n      \"humidity_pct\": 19,\n      \"aqi\": 80,\n      \"solar_irradiance_wm2\": 840\n    }\n  },\n  {\n    \"zone_id\": \"PHX-07\",\n    \"name\": \"Maryvale Residential Fringe\",\n    \"lat\": 33.4783,\n    \"lng\": -112.156,\n    \"temperature_c\": 40.9,\n    \"time_of_measure\": \"13:30\",\n    \"exceedance_hours\": 2.1,\n    \"persistence_hours\": 1.6,\n    \"environmental\": {\n      \"heat_index_c\": 43.0,\n      \"humidity_pct\": 24,\n      \"aqi\": 68,\n      \"solar_irradiance_wm2\": 740\n    }\n  },\n  {\n    \"zone_id\": \"PHX-08\",\n    \"name\": \"Deer Valley Industrial Park\",\n    \"lat\": 33.6845,\n    \"lng\": -112.079,\n    \"temperature_c\": 44.0,\n    \"time_of_measure\": \"15:00\",\n    \"exceedance_hours\": 4.4,\n    \"persistence_hours\": 3.9,\n    \"environmental\": {\n      \"heat_index_c\": 47.6,\n      \"humidity_pct\": 17,\n      \"aqi\": 90,\n      \"solar_irradiance_wm2\": 900\n    }\n  },\n  {\n    \"zone_id\": \"PHX-09\",\n    \"name\": \"Chandler Distribution Center\",\n    \"lat\": 33.3062,\n    \"lng\": -111.8413,\n    \"temperature_c\": 43.6,\n    \"time_of_measure\": \"14:30\",\n    \"exceedance_hours\": 3.9,\n    \"persistence_hours\": 3.3,\n    \"environmental\": {\n      \"heat_index_c\": 46.9,\n      \"humidity_pct\": 18,\n      \"aqi\": 85,\n      \"solar_irradiance_wm2\": 875\n    }\n  },\n  {\n    \"zone_id\": \"PHX-10\",\n    \"name\": \"Camelback East Shaded Corridor\",\n    \"lat\": 33.509,\n    \"lng\": -112.032,\n    \"temperature_c\": 38.4,\n    \"time_of_measure\": \"13:00\",\n    \"exceedance_hours\": 1.2,\n    \"persistence_hours\": 0.8,\n    \"environmental\": {\n      \"heat_index_c\": 39.9,\n      \"humidity_pct\": 28,\n      \"aqi\": 55,\n      \"solar_irradiance_wm2\": 610\n    }\n  },\n  {\n    \"zone_id\": \"PHX-11\",\n    \"name\": \"Laveen Agricultural Fringe\",\n    \"lat\": 33.3739,\n    \"lng\": -112.162,\n    \"temperature_c\": 42.1,\n    \"time_of_measure\": \"14:00\",\n    \"exceedance_hours\": 2.9,\n    \"persistence_hours\": 2.3,\n    \"environmental\": {\n      \"heat_index_c\": 44.6,\n      \"humidity_pct\": 23,\n      \"aqi\": 70,\n      \"solar_irradiance_wm2\": 800\n    }\n  },\n  {\n    \"zone_id\": \"PHX-12\",\n    \"name\": \"Scottsdale Airpark Loading Zone\",\n    \"lat\": 33.623,\n    \"lng\": -111.91,\n    \"temperature_c\": 43.0,\n    \"time_of_measure\": \"14:30\",\n    \"exceedance_hours\": 3.5,\n    \"persistence_hours\": 2.9,\n    \"environmental\": {\n      \"heat_index_c\": 46.0,\n      \"humidity_pct\": 19,\n      \"aqi\": 82,\n      \"solar_irradiance_wm2\": 850\n    }\n  }\n];\n\nreturn [{\n  json: {\n    ...prev,\n    zones,\n    agent_activity: [...prev.agent_activity, `Retrieved heat data for ${zones.length} zones (MOCK MODE - swap for live FortyGuard call)`]\n  }\n}];"
+      },
+      "id": "fetch-heat-data",
+      "name": "2. Fetch Heat Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// STEP 3 - RISK ENGINE\n// Our own transparent, documented Heat Risk Score (NOT provided by FortyGuard):\n//   Temperature            35%\n//   Exceedance duration    25%\n//   Persistence            20%\n//   Environmental stress   10%\n//   Time-of-day exposure   10%\n// All sub-scores normalized 0-100 before weighting.\n\nfunction clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }\nfunction norm(value, min, max) { return clamp(((value - min) / (max - min)) * 100, 0, 100); }\n\nfunction timeOfDayScore(hhmm) {\n  const hour = parseInt(hhmm.split(':')[0], 10);\n  if (hour >= 14 && hour <= 16) return 100;\n  if ((hour >= 13 && hour < 14) || (hour > 16 && hour <= 17)) return 80;\n  if ((hour >= 12 && hour < 13) || (hour > 17 && hour <= 18)) return 60;\n  return 40;\n}\n\nconst prev = $input.first().json;\n\nconst scored = prev.zones.map(z => {\n  const tempScore = norm(z.temperature_c, 35, 48);\n  const exceedScore = norm(z.exceedance_hours, 0, 6);\n  const persistScore = norm(z.persistence_hours, 0, 5);\n  const envScore = clamp(\n    norm(z.environmental.heat_index_c - z.temperature_c, 0, 6) * 0.5 +\n    norm(z.environmental.aqi, 0, 150) * 0.3 +\n    norm(z.environmental.solar_irradiance_wm2, 600, 1000) * 0.2,\n    0, 100\n  );\n  const timeScore = timeOfDayScore(z.time_of_measure);\n\n  const riskScore = Math.round(\n    tempScore * 0.35 +\n    exceedScore * 0.25 +\n    persistScore * 0.20 +\n    envScore * 0.10 +\n    timeScore * 0.10\n  );\n\n  let level = 'LOW';\n  if (riskScore > 80) level = 'CRITICAL';\n  else if (riskScore > 60) level = 'VERY HIGH';\n  else if (riskScore > 40) level = 'HIGH';\n  else if (riskScore > 20) level = 'MODERATE';\n\n  return {\n    ...z,\n    scores: {\n      temperature: Math.round(tempScore),\n      exceedance: Math.round(exceedScore),\n      persistence: Math.round(persistScore),\n      environmental: Math.round(envScore),\n      time_of_day: Math.round(timeScore)\n    },\n    risk_score: riskScore,\n    risk_level: level\n  };\n});\n\nreturn [{\n  json: {\n    ...prev,\n    zones: scored,\n    agent_activity: [...prev.agent_activity, 'Calculated heat exceedance', 'Calculated heat persistence', 'Retrieved environmental parameters', `Scored ${scored.length} zones using weighted Heat Risk formula`]\n  }\n}];"
+      },
+      "id": "risk-engine",
+      "name": "3. Calculate Risk Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// STEP 4 - RANK + EXPLAIN\n// Ranks zones by risk_score and generates a plain-language reason\n// by pointing to whichever sub-scores are actually driving the result.\n\nconst prev = $input.first().json;\nconst ranked = [...prev.zones].sort((a, b) => b.risk_score - a.risk_score);\n\nfunction explain(z) {\n  const reasons = [];\n  if (z.scores.temperature >= 70) reasons.push('elevated ambient temperature');\n  if (z.scores.exceedance >= 70) reasons.push('a long duration above the safe heat threshold');\n  if (z.scores.persistence >= 70) reasons.push('sustained, continuous heat rather than a brief spike');\n  if (z.scores.environmental >= 70) reasons.push('added environmental stress (heat index, air quality, solar load)');\n  if (z.scores.time_of_day >= 80) reasons.push('a peak that falls during active operating hours');\n  if (reasons.length === 0) reasons.push('moderate readings across all risk factors');\n  return `${z.name} is ${z.risk_level.toLowerCase()} risk because it combines ${reasons.join(', ')}.`;\n}\n\nconst explained = ranked.map((z, i) => ({ ...z, rank: i + 1, explanation: explain(z) }));\n\nreturn [{\n  json: {\n    ...prev,\n    zones: explained,\n    top_zone: explained[0],\n    agent_activity: [...prev.agent_activity, `Ranked ${explained.length} zones by risk score`, `Identified top priority zone: ${explained[0].name} (${explained[0].risk_score}/100)`]\n  }\n}];"
+      },
+      "id": "rank-explain",
+      "name": "4. Rank + Explain",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// STEP 5 - ACTION PLAN\n// Maps the top-ranked zone's dominant risk factor to concrete recommendations.\n// Swap/extend with an LLM node for richer, more varied language if desired -\n// this rule-based version guarantees a sensible answer even with no AI key.\n\nconst prev = $input.first().json;\nconst top = prev.top_zone;\n\nconst actions = [];\nif (top.scores.time_of_day >= 80) actions.push('Shift heavy outdoor work to before 13:00 or after 17:00');\nif (top.scores.persistence >= 70) actions.push('Increase worker break frequency and shaded recovery time');\nif (top.scores.temperature >= 70 || top.scores.exceedance >= 70) actions.push('Deploy cooling stations / shade structures at this location first');\nif (top.scores.environmental >= 70) actions.push('Monitor air quality alongside heat - combined stress raises health risk');\nif (actions.length === 0) actions.push('Continue routine monitoring; no immediate intervention required');\n\nconst plan = {\n  priority_zone: top.name,\n  priority_level: top.risk_level,\n  recommended_actions: actions,\n  monitoring_window: '12:00-18:00'\n};\n\nreturn [{\n  json: {\n    city: prev.city,\n    intent: prev.intent,\n    zones: prev.zones,\n    top_zone: top,\n    action_plan: plan,\n    agent_activity: [...prev.agent_activity, 'Generated intervention/action plan', 'Investigation complete']\n  }\n}];"
+      },
+      "id": "action-plan",
+      "name": "5. Generate Action Plan",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond to Frontend",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        120,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "User Request (Webhook)": {
+      "main": [
+        [
+          {
+            "node": "1. Parse Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Parse Intent": {
+      "main": [
+        [
+          {
+            "node": "2. Fetch Heat Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Fetch Heat Data": {
+      "main": [
+        [
+          {
+            "node": "3. Calculate Risk Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Calculate Risk Score": {
+      "main": [
+        [
+          {
+            "node": "4. Rank + Explain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Rank + Explain": {
+      "main": [
+        [
+          {
+            "node": "5. Generate Action Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Generate Action Plan": {
+      "main": [
+        [
+          {
+            "node": "Respond to Frontend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
