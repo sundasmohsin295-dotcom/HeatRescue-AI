@@ -1,3 +1,4 @@
+feat: complete HeatRescue enterprise multi-module SaaS product architecture
 # 🚨 HeatRescue AI — Autonomous Microclimate Decision Support System
 **Built for the FortyGuard Global AI Hackathon '26**
 
