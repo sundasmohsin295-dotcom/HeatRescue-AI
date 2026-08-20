@@ -3,219 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://*.n8n.cloud https://api.fortyguard.com;">
-  <title>HeatRescue AI | Enterprise Heat Emergency Intelligence & Decision Platform</title>
-
+  <title>HeatRescue AI | Enterprise Climate Decision Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/navigation.css">
   <link rel="stylesheet" href="css/modules.css">
-  <link rel="stylesheet" href="css/map.css">
-  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body class="theme-dark">
 
-  <!-- ================= AUTH / LANDING MODAL ================= -->
-  <div id="auth-portal" class="auth-overlay hidden">
-    <div class="auth-card">
-      <div class="auth-header">
-        <div class="brand-badge">HR-AI</div>
-        <h2>HEATRESCUE <span class="accent-text">AI</span></h2>
-        <p class="subtext">From Hyperlocal Heat Data to Auditable Decisions</p>
-      </div>
-
-      <!-- Auth Tabs -->
-      <div class="auth-tabs">
-        <button class="auth-tab-btn active" data-tab="signin">Sign In</button>
-        <button class="auth-tab-btn" data-tab="signup">Create Account</button>
-        <button class="auth-tab-btn" data-tab="demo">Judge QuickPass</button>
-      </div>
-
-      <!-- Sign In Form -->
-      <form id="signin-form" class="auth-form">
-        <div class="form-group">
-          <label>Work Email</label>
-          <input type="email" id="signin-email" required placeholder="manager@phoenix.gov" value="demo.manager@resilience.gov">
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="signin-password" required value="••••••••••••">
-        </div>
-        <button type="submit" class="btn btn-primary full-width">Access Command Center</button>
-      </form>
-
-      <!-- Signup Form -->
-      <form id="signup-form" class="auth-form hidden">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="signup-name" required placeholder="Director Sarah Chen">
-        </div>
-        <div class="form-group">
-          <label>Organization & Department</label>
-          <input type="text" id="signup-org" required placeholder="Municipal Emergency Management">
-        </div>
-        <div class="form-group">
-          <label>Role</label>
-          <select id="signup-role">
-            <option value="emergency">Emergency Operations Manager</option>
-            <option value="planner">Urban Resilience Planner</option>
-            <option value="safety">Occupational Safety Officer</option>
-            <option value="researcher">Climate Researcher</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary full-width">Proceed to Verification</button>
-      </form>
-
-      <!-- Demo Direct Access -->
-      <div id="demo-pass-section" class="auth-form hidden">
-        <div class="demo-callout">
-          <strong>⚡ Hackathon Evaluator Mode</strong>
-          <p>Instant access with pre-authenticated municipal director privileges, loaded 40Guard Phoenix datasets, and full multi-agent capabilities.</p>
-        </div>
-        <button id="quick-demo-login-btn" class="btn btn-warning full-width">Launch Authenticated Session</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= ONBOARDING WIZARD MODAL ================= -->
-  <div id="onboarding-portal" class="auth-overlay hidden">
-    <div class="auth-card onboarding-card">
-      <div class="wizard-header">
-        <span class="step-tag" id="wizard-step-tag">Step 1 of 3</span>
-        <h3 id="wizard-step-title">Select Monitoring Scope</h3>
-      </div>
-      <div class="wizard-body" id="wizard-body-content">
-        <!-- Dynamic steps injected via JS -->
-      </div>
-      <div class="wizard-footer">
-        <button id="wizard-prev-btn" class="btn btn-secondary" disabled>Back</button>
-        <button id="wizard-next-btn" class="btn btn-primary">Continue</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= MAIN APP WORKSPACE ================= -->
-  <div class="app-layout" id="main-application">
+  <div class="app-layout">
     
-    <!-- Collapsible Sidebar Navigation -->
-    <aside class="sidebar" id="app-sidebar">
+    <!-- 8-Domain Scannable Navigation -->
+    <aside class="sidebar">
       <div class="sidebar-brand">
         <div class="brand-badge">HR-AI</div>
         <div>
           <h2>HEATRESCUE</h2>
-          <span class="subtext">v2.5.0-ENTERPRISE</span>
+          <span class="subtext">v3.0.0-ENTERPRISE</span>
         </div>
       </div>
 
       <nav class="sidebar-nav">
-        <div class="nav-section-title">COMMAND</div>
-        <button class="nav-item active" data-module="command">
-          <span class="nav-icon">🚨</span> Command Center
-        </button>
+        <div class="nav-section-title">CORE OPERATIONS</div>
+        <button class="nav-item active" data-domain="command">🚨 1. Command Center</button>
+        <button class="nav-item" data-domain="intelligence">🗺️ 2. Heat Intelligence</button>
+        <button class="nav-item" data-domain="investigation">🤖 3. AI Investigator</button>
 
-        <div class="nav-section-title">INTELLIGENCE</div>
-        <button class="nav-item" data-module="heat-intel">
-          <span class="nav-icon">🗺️</span> Heat Intelligence & GIS
-        </button>
-        <button class="nav-item" data-module="zone-profile">
-          <span class="nav-icon">🏢</span> Zone Audit & Exposure
-        </button>
+        <div class="nav-section-title">PREDICTION & OPERATIONS</div>
+        <button class="nav-item" data-domain="prediction">🧪 4. Simulation Lab</button>
+        <button class="nav-item" data-domain="operations">🛡️ 5. Response Operations</button>
 
-        <div class="nav-section-title">ANALYSIS & AGENTS</div>
-        <button class="nav-item" data-module="investigator">
-          <span class="nav-icon">🤖</span> AI Heat Investigator
-        </button>
-        <button class="nav-item" data-module="risk-engine">
-          <span class="nav-icon">🔬</span> Explainable Risk Engine
-        </button>
-        <button class="nav-item" data-module="whatif-lab">
-          <span class="nav-icon">🧪</span> What-If Intervention Lab
-        </button>
-
-        <div class="nav-section-title">RESPONSE & OPERATIONS</div>
-        <button class="nav-item" data-module="incident-triage">
-          <span class="nav-icon">🛡️</span> Incidents & Dispatch
-        </button>
-        <button class="nav-item" data-module="resource-alloc">
-          <span class="nav-icon">🧊</span> Resource Optimizer
-        </button>
-        <button class="nav-item" data-module="cool-routes">
-          <span class="nav-icon">🛣️</span> Safe Cool-Routes
-        </button>
-
-        <div class="nav-section-title">ASSURANCE & AUDIT</div>
-        <button class="nav-item" data-module="audit-trail">
-          <span class="nav-icon">🔐</span> SOC Cryptographic Trail
-        </button>
-        <button class="nav-item" data-module="data-trust">
-          <span class="nav-icon">📡</span> Data Trust & API Health
-        </button>
+        <div class="nav-section-title">SECURITY & GOVERNANCE</div>
+        <button class="nav-item" data-domain="security">🔐 6. Cybersecurity</button>
+        <button class="nav-item" data-domain="audit">📜 7. Incidents & Audit</button>
+        <button class="nav-item" data-domain="admin">⚙️ 8. Administration</button>
       </nav>
 
       <div class="sidebar-user-footer">
-        <div class="user-avatar" id="user-avatar-initials">DM</div>
+        <div class="user-avatar">DM</div>
         <div class="user-meta">
-          <strong id="user-display-name">Demo Manager</strong>
-          <span class="subtext" id="user-role-name">Emergency Operations</span>
+          <strong>Director Sarah Chen</strong>
+          <span class="subtext">Incident Commander (L4)</span>
         </div>
-        <button id="logout-btn" class="btn-icon" title="Sign Out">⎋</button>
       </div>
     </aside>
 
-    <!-- Content Workspace -->
+    <!-- Operational Viewport -->
     <div class="workspace">
-      
-      <!-- Universal Top Nav -->
       <header class="top-nav">
         <div class="nav-left">
-          <h2 id="current-module-title">Command Center</h2>
-          <span class="breadcrumb" id="current-module-desc">Executive situational overview & real-time telemetry</span>
+          <h2 id="domain-header-title">Command Center</h2>
+          <span class="breadcrumb" id="domain-header-desc">Executive operational overview & real-time telemetry</span>
         </div>
 
         <div class="nav-metrics">
-          <div class="metric-pill" id="live-telemetry-pill">
+          <div class="metric-pill">
             <span class="pulse-dot green"></span>
-            <span id="system-mode-indicator">40GUARD API: CONNECTED (2m AGL)</span>
+            <span id="telemetry-source-label">FORTYGUARD: LIVE (2m AGL)</span>
           </div>
           <div class="metric-pill">
             <span>AUDIT CHAIN:</span>
-            <strong id="audit-chain-count">0 BLOCKS</strong>
+            <strong id="header-audit-blocks">0 BLOCKS</strong>
           </div>
         </div>
 
         <div class="nav-controls">
-          <button id="launch-judge-demo-btn" class="btn btn-warning">🎬 Launch Judge Demo</button>
-          <button id="quick-export-report-btn" class="btn btn-secondary">📄 Generate SitRep</button>
+          <button id="theme-toggle-btn" class="btn btn-secondary">☀️ Light Mode</button>
+          <button id="run-master-demo-btn" class="btn btn-warning">🎬 Launch Judge Demo</button>
         </div>
       </header>
 
-      <!-- View Containers (Swapped via Module Router) -->
-      <main class="view-viewport" id="module-viewport">
-        <!-- Injected dynamically by UI Controllers -->
-      </main>
-
-    </div>
-  </div>
-
-  <!-- Global Modal Mount Point -->
-  <div class="modal-overlay hidden" id="global-modal">
-    <div class="modal-window">
-      <div class="modal-header">
-        <h3 id="global-modal-title">System Advisory</h3>
-        <button class="modal-close" id="global-modal-close">&times;</button>
-      </div>
-      <div class="modal-body" id="global-modal-body"></div>
-      <div class="modal-footer" id="global-modal-footer"></div>
+      <main class="view-viewport" id="domain-viewport"></main>
     </div>
   </div>
 
   <div class="toast-deck" id="toast-deck"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
