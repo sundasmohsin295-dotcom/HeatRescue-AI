@@ -29,7 +29,7 @@
   --radius-lg: 12px;
 }
 
-/* Light / Bright Theme Tokens */
+/* Light Theme Tokens */
 body.theme-light {
   --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
