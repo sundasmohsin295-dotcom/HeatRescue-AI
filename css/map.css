@@ -1,0 +1,135 @@
+.map-controls-bar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 400;
+  display: flex;
+  justify-content: space-between;
+  background: var(--bg-panel);
+  backdrop-filter: blur(8px);
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.layer-toggles {
+  display: flex;
+  gap: 4px;
+}
+
+.layer-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.layer-btn.active {
+  background: var(--accent-cyan);
+  color: var(--text-inverse);
+  font-weight: 700;
+  border-color: var(--accent-cyan);
+}
+
+.time-machine-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-label {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--accent-amber);
+}
+
+.map-render-target {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: #0d1117;
+}
+
+/* Bottom Formula Visualizer */
+.risk-breakdown-tray {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 400;
+  background: var(--bg-panel);
+  backdrop-filter: blur(8px);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.tray-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.tray-header h4 {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.risk-composite-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-red);
+  font-weight: 700;
+}
+
+.breakdown-bars {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.breakdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.breakdown-item .label-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: var(--text-muted);
+}
+
+.meter-track {
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  background: var(--accent-cyan);
+}
+
+.meter-fill.warn { background: var(--accent-amber); }
+.meter-fill.crit { background: var(--accent-red); }
+
+/* Custom Leaflet Map styling */
+.leaflet-popup-content-wrapper {
+  background: var(--bg-secondary) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  font-family: var(--font-sans) !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--bg-secondary) !important;
+}
